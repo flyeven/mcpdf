@@ -24,15 +24,23 @@
 
 package aero.m_click.mcpdf;
 
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.pdf.PdfReader;
-import com.itextpdf.text.pdf.PdfStamper;
-import com.itextpdf.text.pdf.XfdfReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+ 
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.AcroFields;
+
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.PdfStamper;
+import com.itextpdf.text.pdf.XfdfReader;
 
 public class Main
 {
@@ -84,10 +92,34 @@ public class Main
     {
         PdfReader reader = new PdfReader(config.pdfInputStream);
         PdfStamper stamper = new PdfStamper(reader, config.pdfOutputStream, '\0');
+		
+		//Font bfChinese = BaseFont.createFont("STSongStd-Light", "UniGB-UCS2-H", false); 
+
+		//Font fontChinese = new Font(bfChinese); 
+
+		BaseFont bf = BaseFont.createFont("C:\\WINDOWS\\Fonts\\KAIU.TTF", BaseFont.IDENTITY_H,  BaseFont.NOT_EMBEDDED);
+		
+		//設定中文字型(BaseFont、字型大小、字型型態)
+		Font chineseFont = new Font(bf, 12, Font.NORMAL);
+
         if (config.formInputStream != null) {
-            stamper.getAcroFields().setFields(new XfdfReader(config.formInputStream));
+			AcroFields form = stamper.getAcroFields();
+			form.addSubstitutionFont(bf);
+            form.setFields(new XfdfReader(config.formInputStream));
         }
         stamper.setFormFlattening(config.flatten);
         stamper.close();
     }
 }
+
+/**
+PdfReader reader = new PdfReader(src);
+PdfStamper stamper = new PdfStamper(reader, new FileOutputStream(dest));
+AcroFields form = stamper.getAcroFields();
+BaseFont unicode =
+    BaseFont.createFont("c:/windows/fonts/arialuni.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+form.addSubstitutionFont(unicode);
+form.setField("description", "\u0628\u0627 \u0628\u0627 \u0628\u0627 \u0628\u0627 \u0628\u0627 \u0628\u0627 \u0628\u0627 \u0628\u0627 \u0628\u0627 \u0628\u0627");
+stamper.close();
+reader.close();
+*/
